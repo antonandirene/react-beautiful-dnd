@@ -84,38 +84,6 @@ const getSpeed = (distance: number, thresholds: PixelThresholds): number => {
   return speed;
 };
 
-type AdjustForSizeLimitsArgs = {|
-  container: Area,
-  subject: Area,
-  proposedScroll: Position,
-|}
-
-const adjustForSizeLimits = ({
-  container,
-  subject,
-  proposedScroll,
-}: AdjustForSizeLimitsArgs): ?Position => {
-  const isTooBigVertically: boolean = subject.height > container.height;
-  const isTooBigHorizontally: boolean = subject.width > container.width;
-
-  // not too big on any axis
-  if (!isTooBigHorizontally && !isTooBigVertically) {
-    return proposedScroll;
-  }
-
-  // too big on both axis
-  if (isTooBigHorizontally && isTooBigVertically) {
-    return null;
-  }
-
-  // Only too big on one axis
-  // Exclude the axis that we cannot scroll on
-  return {
-    x: isTooBigHorizontally ? 0 : proposedScroll.x,
-    y: isTooBigVertically ? 0 : proposedScroll.y,
-  };
-};
-
 type GetRequiredScrollArgs = {|
   container: Area,
   subject: Area,
@@ -173,11 +141,7 @@ const getRequiredScroll = ({ container, subject, center }: GetRequiredScrollArgs
   }
 
   // need to not scroll in a direction that we are too big to scroll in
-  const limited: ?Position = adjustForSizeLimits({
-    container,
-    subject,
-    proposedScroll: required,
-  });
+  const limited: ?Position = required;
 
   if (!limited) {
     return null;
@@ -255,7 +219,7 @@ export default ({
       return;
     }
 
-    const center: Position = drag.current.page.center;
+    const center: Position = drag.current.page.selection;
 
     // 1. Can we scroll the viewport?
 
